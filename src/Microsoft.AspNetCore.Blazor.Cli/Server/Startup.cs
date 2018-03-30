@@ -82,15 +82,36 @@ namespace Microsoft.AspNetCore.Blazor.Cli.Server
 
         private static string FindClientBinDir(string clientAppSourceRoot)
         {
-            var binDebugDir = Path.Combine(clientAppSourceRoot, "bin", "Debug");
-            var subdirectories = Directory.GetDirectories(binDebugDir);
+            // As a temporary workaround for https://github.com/aspnet/Blazor/issues/261,
+            // disallow the scenario where there is both a Debug *and* a Release dir.
+            // Only allow there to be one, and that's the one we pick.
+            var debugDirPath = Path.Combine(clientAppSourceRoot, "bin", "Debug");
+            var releaseDirPath = Path.Combine(clientAppSourceRoot, "bin", "Release");
+            var debugDirExists = Directory.Exists(debugDirPath);
+            var releaseDirExists = Directory.Exists(releaseDirPath);
+            if (debugDirExists && releaseDirExists)
+            {
+                throw new InvalidOperationException($"Cannot identify unique bin directory for Blazor app. " +
+                    $"Found both '{debugDirPath}' and '{releaseDirPath}'. Ensure that only one is present on " +
+                    $"disk. This is a temporary limitation (see https://github.com/aspnet/Blazor/issues/261).");
+            }
+
+            if (!(debugDirExists || releaseDirExists))
+            {
+                throw new InvalidOperationException($"Cannot find bin directory for Blazor app. " +
+                    $"Neither '{debugDirPath}' nor '{releaseDirPath}' exists on disk. Make sure the project has been built.");
+            }
+
+            var binDir = debugDirExists ? debugDirPath : releaseDirPath;
+
+            var subdirectories = Directory.GetDirectories(binDir);
             if (subdirectories.Length != 1)
             {
                 throw new InvalidOperationException($"Could not locate bin directory for Blazor app. " +
-                    $"Expected to find exactly 1 subdirectory in '{binDebugDir}', but found {subdirectories.Length}.");
+                    $"Expected to find exactly 1 subdirectory in '{binDir}', but found {subdirectories.Length}.");
             }
 
-            return Path.Combine(binDebugDir, subdirectories[0]);
+            return Path.Combine(binDir, subdirectories[0]);
         }
     }
 }

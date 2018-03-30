@@ -1,6 +1,6 @@
 # Blazor
 
-**An experimental web UI framework using C#/Razor and HTML, running in the browser via WebAssembly**
+**An experimental .NET web framework using C#/Razor and HTML that runs in the browser via WebAssembly**
 
 [![Gitter](https://badges.gitter.im/aspnet/Blazor.svg)](https://gitter.im/aspnet/Blazor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
@@ -28,19 +28,27 @@ To see Blazor in action, check out [Steve Sanderson's prototype demo at NDC Oslo
 
 ## Getting Started
 
-We are still *very early* in this project. There isn't yet anything you can download nor any project template you can use. Most of the planned features aren't implemented yet. Even the parts that are already implemented aren't yet optimized for minimal payload size. If you're keen, you can clone the repo, build it, and run the samples and tests.
+To get setup with Blazor:
+
+1. Install the [.NET Core 2.1 Preview 1 SDK](https://www.microsoft.com/net/download/dotnet-core/sdk-2.1.300-preview1).
+1. Install the latest *preview* of [Visual Studio 2017 (15.7)](https://www.visualstudio.com/vs/preview) with the *ASP.NET and web development* workload.
+   - *Note:* You can install Visual Studio previews side-by-side with an existing Visual Studio installation without impacting your existing development environment.
+1. Install the [ASP.NET Core Blazor Language Services extension](https://go.microsoft.com/fwlink/?linkid=870389) from the Visual Studio Marketplace.
+
+You're now ready to start building web apps with Blazor! To build your first Blazor web app check out our [getting started guide](https://go.microsoft.com/fwlink/?linkid=870449).
 
 ## Build
 
 Prerequisites:
-- [.NET Core SDK](https://dot.net/core) (>2.1.4)
 - [Node.js](https://nodejs.org/) (>8.3)
 
-Run `dotnet build Blazor.sln` from the solution directory.
+The build script will acquire the required version of the .NET runtime and .NET SDK on first run.
 
-## Run tests
+Run `build.cmd` or `build.sh` from the solution directory.
 
-Run `dotnet test test/<dir>/<project>.Test.csproj`
+## Run unit tests
+
+Run `build.cmd /t:Test` or `build.sh /t:Test`
 
 ## Run end-to-end tests
 
@@ -52,35 +60,27 @@ Prerequisites:
 
 Run `selenium-standalone start`
 
-Run `dotnet test test\Microsoft.AspNetCore.Blazor.E2ETest\Microsoft.AspNetCore.Blazor.E2ETest.csproj`
+Run `build.cmd /t:Test /p:BlazorAllTests=true` or `build.sh /t:Test /p:BlazorAllTests=true`
 
-## Run all tests
-
-Install prerequisites for E2E tests
-
-Run `dotnet test test\AllTests.proj`
-
-## Build VS Tooling
+## Opening in Visual Studio
 
 Prerequisites:
-- Visual Studio 2017 15.6 (or newer)
-- Visual Studio extension development features (install via Visual Studio Installer)
+- Visual Studio 2017 15.7 preview 1 (or newer) - [download](https://www.visualstudio.com/thank-you-downloading-visual-studio/?ch=pre&sku=Enterprise&rel=15)
 
-Open a VS Developer Command Prompt
+We recommend getting the preview version of Visual Studio and updating it frequently. The Blazor
+editing experience in Visual Studio depends on  new features of the Razor language tooling and
+will be updated frequently.
 
-Run the following instructions from the solution directory.
+When installing Visual Studio choose the following workloads:
+- ASP.NET and Web Development
+- Visual Studio extension development features
 
-```shell
-msbuild BlazorTooling.sln /t:Restore
-msbuild BlazorTooling.sln
-```
+## Developing the Blazor VS Tooling
 
-## Use VS Tooling
+To do local development of the Blazor tooling experience in VS, select the `Microsoft.VisualStudio.BlazorExtension`
+project and launch the debugger.
 
-To install the Tooling following prerequisites must be installed first:
-
-- Visual Studio 2017 15.6 (or newer)
-- Workload: ASP.NET and web development
+The Blazor Visual Studio tooling will build as part of the command line build when on Windows.
 
 ## Contributing
 

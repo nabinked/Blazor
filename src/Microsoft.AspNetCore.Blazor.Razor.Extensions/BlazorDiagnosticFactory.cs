@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using AngleSharp;
 using Microsoft.AspNetCore.Razor.Language;
@@ -11,19 +12,6 @@ namespace Microsoft.AspNetCore.Blazor.Razor
 {
     internal static class BlazorDiagnosticFactory
     {
-        public static readonly RazorDiagnosticDescriptor InvalidComponentAttributeSyntax = new RazorDiagnosticDescriptor(
-            "BL9980",
-            () => "Wrong syntax for '{0}' on '{1}': As a temporary " +
-                $"limitation, component attributes must be expressed with C# syntax. For example, " +
-                $"SomeParam=@(\"Some value\") is allowed, but SomeParam=\"Some value\" is not.",
-            RazorDiagnosticSeverity.Error);
-
-        public static RazorDiagnostic Create_InvalidComponentAttributeSynx(TextPosition position, SourceSpan? span, string attributeName, string componentName)
-        {
-            span = CalculateSourcePosition(span, position);
-            return RazorDiagnostic.Create(InvalidComponentAttributeSyntax, span ?? SourceSpan.Undefined, attributeName, componentName);
-        }
-
         public static readonly RazorDiagnosticDescriptor UnexpectedClosingTag = new RazorDiagnosticDescriptor(
             "BL9981",
             () => "Unexpected closing tag '{0}' with no matching start tag.",
@@ -75,26 +63,30 @@ namespace Microsoft.AspNetCore.Blazor.Razor
             return RazorDiagnostic.Create(UnsupportedComplexContent, node.Source ?? SourceSpan.Undefined, attributeName, content);
         }
 
-        private static SourceSpan? CalculateSourcePosition(
-            SourceSpan? razorTokenPosition,
-            TextPosition htmlNodePosition)
+        public static readonly RazorDiagnosticDescriptor PageDirective_CannotBeImported =
+            new RazorDiagnosticDescriptor(
+            "BL9987",
+            () => Resources.PageDirectiveCannotBeImported,
+            RazorDiagnosticSeverity.Error);
+
+        public static RazorDiagnostic CreatePageDirective_CannotBeImported(SourceSpan source)
         {
-            if (razorTokenPosition.HasValue)
-            {
-                var razorPos = razorTokenPosition.Value;
-                return new SourceSpan(
-                    razorPos.FilePath,
-                    razorPos.AbsoluteIndex + htmlNodePosition.Position,
-                    razorPos.LineIndex + htmlNodePosition.Line - 1,
-                    htmlNodePosition.Line == 1
-                        ? razorPos.CharacterIndex + htmlNodePosition.Column - 1
-                        : htmlNodePosition.Column - 1,
-                    length: 1);
-            }
-            else
-            {
-                return null;
-            }
+            var fileName = Path.GetFileName(source.FilePath);
+            var diagnostic = RazorDiagnostic.Create(PageDirective_CannotBeImported, source, PageDirective.Directive.Directive, fileName);
+
+            return diagnostic;
+        }
+
+        public static readonly RazorDiagnosticDescriptor PageDirective_MustSpecifyRoute =
+            new RazorDiagnosticDescriptor(
+            "BL9988",
+            () => "The @page directive must specify a route template. The route template must be enclosed in quotes and begin with the '/' character.",
+            RazorDiagnosticSeverity.Error);
+
+        public static RazorDiagnostic CreatePageDirective_MustSpecifyRoute(SourceSpan? source)
+        {
+            var diagnostic = RazorDiagnostic.Create(PageDirective_MustSpecifyRoute, source ?? SourceSpan.Undefined);
+            return diagnostic;
         }
     }
 }
